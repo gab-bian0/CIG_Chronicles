@@ -1,10 +1,12 @@
-import Phaser from 'phaser';
+import { defineConfig } from 'vite';
 
-export const GameEvents = {
-  FLAG_CHANGED: 'flag-changed',
-  INVENTORY_CHANGED: 'inventory-changed',
-  GAME_SAVED: 'game-saved',
-} as const;
-
-/** Bus condiviso per disaccoppiare scene, UI e stato persistente. */
-export const EventBus = new Phaser.Events.EventEmitter();
+export default defineConfig({
+  // Il percorso relativo rende la build compatibile sia con GitHub Pages
+  // (anche sotto /nome-repository/) sia con un normale server statico.
+  base: './',
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    sourcemap: true,
+  },
+});

@@ -1,11 +1,19 @@
 {
-  "id": "pavaglione_tutorial",
-  "name": "Pavaglione — Tutorial",
-  "size": { "width": 960, "height": 540 },
-  "spawn": { "x": 480, "y": 440 },
-  "objects": [
-    { "id": "ciollo", "type": "battle_trigger", "x": 455, "y": 185, "width": 50, "height": 70 },
-    { "id": "return_doc", "type": "exit", "x": 435, "y": 500, "width": 90, "height": 40 },
-    { "id": "road_bagnara", "type": "locked_exit", "x": 875, "y": 230, "width": 70, "height": 100 }
-  ]
+  "compilerOptions": {
+    "target": "ES2022",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "skipLibCheck": true,
+    "moduleResolution": "Bundler",
+    "allowImportingTsExtensions": false,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "strict": true,
+    "noEmit": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
+  },
+  "include": ["src", "vite.config.ts"]
 }
