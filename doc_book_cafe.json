@@ -1,0 +1,52 @@
+import Phaser from 'phaser';
+
+export abstract class BaseScene extends Phaser.Scene {
+  protected addBackdrop(color = 0x17130f): void {
+    this.cameras.main.setBackgroundColor(color);
+    const g = this.add.graphics();
+    g.fillStyle(0xffffff, 0.025);
+    for (let x = 0; x < 960; x += 32) g.fillRect(x, 0, 1, 540);
+    for (let y = 0; y < 540; y += 32) g.fillRect(0, y, 960, 1);
+  }
+
+  protected addPrompt(text: string): Phaser.GameObjects.Text {
+    return this.add.text(480, 510, text, {
+      fontFamily: 'Georgia', fontSize: '16px', color: '#dfcca5',
+      backgroundColor: '#00000088', padding: { x: 12, y: 7 },
+    }).setOrigin(0.5).setDepth(100);
+  }
+
+  protected showDialogue(
+    lines: Array<{ speaker: string; text: string }>,
+    onComplete?: () => void,
+  ): void {
+    let index = 0;
+    const panel = this.add.rectangle(480, 445, 860, 145, 0x0d0b09, 0.94)
+      .setStrokeStyle(2, 0xb68b4c).setDepth(200);
+    const speaker = this.add.text(80, 386, '', {
+      fontFamily: 'Georgia', fontSize: '20px', color: '#d7a85b', fontStyle: 'bold',
+    }).setDepth(201);
+    const body = this.add.text(80, 420, '', {
+      fontFamily: 'Georgia', fontSize: '19px', color: '#f5ead2',
+      wordWrap: { width: 800 }, lineSpacing: 6,
+    }).setDepth(201);
+    const hint = this.add.text(870, 490, 'SPAZIO ▶', {
+      fontFamily: 'Arial', fontSize: '12px', color: '#bcae95',
+    }).setOrigin(1).setDepth(201);
+    const render = (): void => {
+      speaker.setText(lines[index].speaker);
+      body.setText(lines[index].text);
+    };
+    const close = (): void => {
+      this.input.keyboard?.off('keydown-SPACE', advance);
+      panel.destroy(); speaker.destroy(); body.destroy(); hint.destroy();
+      onComplete?.();
+    };
+    const advance = (): void => {
+      index += 1;
+      if (index >= lines.length) close(); else render();
+    };
+    render();
+    this.input.keyboard?.on('keydown-SPACE', advance);
+  }
+}

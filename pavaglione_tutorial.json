@@ -1,0 +1,60 @@
+import { BaseScene } from './BaseScene';
+import dialogues from '../data/dialogues.json';
+import { GameState } from '../core/GameState';
+import { SaveManager } from '../core/SaveManager';
+
+export class BattleScene extends BaseScene {
+  private ciolloHp = 3;
+  private status!: Phaser.GameObjects.Text;
+  private attacking = false;
+
+  constructor() { super('BattleScene'); }
+
+  create(): void {
+    this.addBackdrop(0x281b1b);
+    this.add.text(480, 55, 'DUELLO NEL PAVAGLIONE', {
+      fontFamily: 'Georgia', fontSize: '32px', color: '#d7a85b',
+    }).setOrigin(0.5);
+    const hero = this.add.sprite(250, 290, 'pastenone').setScale(3).setName('hero');
+    const enemy = this.add.sprite(710, 290, 'ciollo').setScale(3).setFlipX(true).setName('enemy');
+    this.add.text(hero.x, 370, 'Pastenone', { fontFamily: 'Georgia', fontSize: '21px', color: '#f5ead2' }).setOrigin(0.5);
+    this.add.text(enemy.x, 370, 'Ciollo', { fontFamily: 'Georgia', fontSize: '21px', color: '#f5ead2' }).setOrigin(0.5);
+    this.status = this.add.text(480, 420, 'Ciollo  ♥ ♥ ♥', {
+      fontFamily: 'Arial', fontSize: '20px', color: '#f0d9c0',
+    }).setOrigin(0.5);
+    const attack = this.add.text(480, 478, 'ATTACCA  [SPAZIO]', {
+      fontFamily: 'Arial', fontSize: '18px', color: '#17130f', backgroundColor: '#d7a85b',
+      padding: { x: 18, y: 10 },
+    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+    attack.on('pointerdown', () => this.attack());
+    this.input.keyboard?.on('keydown-SPACE', () => this.attack());
+  }
+
+  private attack(): void {
+    if (this.attacking || this.ciolloHp <= 0) return;
+    this.attacking = true;
+    const hero = this.children.getByName('hero');
+    const enemy = this.children.getByName('enemy');
+    this.tweens.add({ targets: hero, x: 340, yoyo: true, duration: 130 });
+    this.tweens.add({ targets: enemy, alpha: 0.25, yoyo: true, delay: 120, duration: 80 });
+    this.time.delayedCall(220, () => {
+      this.ciolloHp -= 1;
+      this.status.setText(`Ciollo  ${'♥ '.repeat(this.ciolloHp)}${'♡ '.repeat(3 - this.ciolloHp)}`);
+      this.attacking = false;
+      if (this.ciolloHp === 0) this.victory();
+    });
+  }
+
+  private victory(): void {
+    GameState.setFlag('tutorial_battle_won');
+    GameState.setFlag('ciola_di_mogano_obtained');
+    GameState.setFlag('ciola_albina_revealed');
+    GameState.setFlag('road_to_bagnara_unlocked');
+    GameState.addItem('Ciola di Mogano');
+    GameState.setPlayerPosition({ map: 'pavaglione_tutorial', x: 480, y: 410 });
+    SaveManager.save();
+    this.time.delayedCall(350, () => this.showDialogue(dialogues.battle_victory, () => {
+      this.scene.start('WorldScene', { map: 'pavaglione_tutorial' });
+    }));
+  }
+}
